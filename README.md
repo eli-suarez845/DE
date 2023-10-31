@@ -1,9 +1,14 @@
 # 
-## _The Last Markdown Editor, Ever_
+## Deliverable #1:
 
-[![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://nodesource.com/products/nsolid)
+This project is about to create a script that extracts JSON data from a public API, 
+which is going to be stored in a table created in Redshift for the subsequent data load.
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
+This code will be used in the final project as an initial ETL (Extract, Transform, Load) script in a Python dictionary format.
 
-Dillinger is a cloud-enabled, mobile-ready, offline-storage compatible,
-AngularJS-powered HTML5 Markdown editor.
+The table must be created in Redshift. The chosen distribution style was KEY distribution (the rows are distributed according to the values in one column, 
+so  this way, matching values from the common columns are physically stored together).
+
+And the chosen SORT KEY was pubDate (article's published date), because the ETLs objective is to get daily news on the topic of the war in Ukraine.
+
+The used source is https://newsdata.io/
