@@ -36,13 +36,13 @@ resp = requests.get(url)
 
 # Tenemos una lista de diccionario
 results = resp.json()["results"]
-#print(results)
+print(results)
 
 # Entonces, podemos crear un DataFrame
 df = pd.DataFrame(results)
 # print(df.head(5))
 
-print(df["title"],["creator"])
+print(df["title"], ["creator"])
 
 # Cómo selecciono mostrar solo algunas columnas de results ???
 
