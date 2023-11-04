@@ -1,48 +1,49 @@
-import requests
-import json
-import pandas as pd
+# Instalamos librerías:
+# Packages instalados: sqlalchemy-redshift, pandas
 
-import os
-
-# Para leer el archivo config.ini :
+# Importamos librerías:
 from configparser import ConfigParser
+import pandas as pd
+import sqlalchemy as sa
 
-from pathlib import Path
+# Definimos funciones:
 
-# Instanciar la clase ConfigParser y lo asigno en una variable:
-config = ConfigParser()
+def build_conn_string(config_path, config_section):
+    """
+    Construye la cadena de conexión a la base de datos
+    a partir de un archivo de configuración.
+    """
 
-# base_dir = ("C:\Users\Elisa\Desktop\CoderHouse\Data engineering")
+    # Lee el archivo de configuración
+    parser = ConfigParser()
+    parser.read(config_path)
 
-# os.chdir(base_dir)
+    # Lee la sección de configuración de PostgreSQL
+    config = parser[config_section]
+    host = config['host']
+    port = config['port']
+    dbname = config['dbname']
+    username = config['username']
+    pwd = config['pwd']
 
+    # Construye la cadena de conexión
+    conn_string = f'postgresql://{username}:{pwd}@{host}:{port}/{dbname}?sslmode=require'
+
+    return conn_string
+
+# ----------------------------
+
+def connect_to_db(conn_string):
+    """
+    Crea una conexión a la base de datos.
+    """
+    engine = sa.create_engine(conn_string)
+    conn = engine.connect()
+    return conn, engine
+
+
+# Conexión a Redshift
 config_dir = "venv/config/config.ini"
-config.read(config_dir)  # el contenido del archivo queda en ese config
-
-# Chequeamos que la sección y la variable declarada se lean correctamente:
-# print(config.sections())
-key = config["API_KEY_NEWSDATAIO"]["key"]
-
-# En este caso particular la api nos da el link armado,
-# de lo contrario armar url base + endpoint + parámetros:
-url = str("https://newsdata.io/api/1/news?apikey=" + key + "&q=ucrania")
-# print(url)
-
-# Obtenemos datos haciendo un GET usando el método get de la librería
-resp = requests.get(url)
-
-# Podemos ver el contenido del archivo json:
-# print(resp.json())
-
-# Tenemos una lista de diccionario
-results = resp.json()["results"]
-print(results)
-
-# Entonces, podemos crear un DataFrame
-df = pd.DataFrame(results)
-# print(df.head(5))
-
-print(df["title"], ["creator"])
-
-# Cómo selecciono mostrar solo algunas columnas de results ???
+conn_string = build_conn_string(config_dir, "redshift")
+conn, engine = connect_to_db(conn_string)
 
