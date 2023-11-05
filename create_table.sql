@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS elisasuaezmoreira_coderhouse.PrimerEntregable
 (
-    article_id VARCHAR(50) NOT NULL distkey,
+    article_id VARCHAR(50) PRIMARY KEY distkey,
     title VARCHAR(100),
     creator VARCHAR(50),
     link VARCHAR(100),
