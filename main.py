@@ -43,6 +43,42 @@ def connect_to_db(conn_string):
 
 # ----------------------------
 
+config = ConfigParser()
+
+# base_dir = ("C:\Users\Elisa\Desktop\CoderHouse\Data engineering")
+
+# os.chdir(base_dir)
+
+config_dir = "venv/config/config.ini"
+config.read(config_dir)  # el contenido del archivo queda en ese config
+
+# Chequeamos que la sección y la variable declarada se lean correctamente:
+# print(config.sections())
+key = config["API_KEY_NEWSDATAIO"]["key"]
+
+# En este caso particular la api nos da el link armado,
+# de lo contrario armar url base + endpoint + parámetros:
+url = str("https://newsdata.io/api/1/news?apikey=" + key + "&q=ucrania")
+# print(url)
+
+# Obtenemos datos haciendo un GET usando el método get de la librería
+resp = requests.get(url)
+
+# Podemos ver el contenido del archivo json:
+# print(resp.json())
+
+# Tenemos una lista de diccionario
+results = resp.json()["results"]
+#print(results)
+
+# Entonces, podemos crear un DataFrame
+df = pd.DataFrame(results)
+# print(df.head(5))
+
+print(df["title"],["creator"])
+
+# ----------------------------
+
 # Se establece la conexión a Redshift
 config_dir = "venv/config/config.ini"
 conn_string = build_conn_string(config_dir, "redshift")
