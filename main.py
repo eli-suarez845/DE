@@ -1,68 +1,34 @@
 # Python Packages instalados: sqlalchemy-redshift, psycopg2
 
-# Se importa librerías:
-from configparser import ConfigParser
+# Se importan librerías:
+
 import requests
 import sqlalchemy as sa
 import pandas as pd
-import awswrangler as wr
 import utils as ut
 
 import sqlalchemy_redshift as sar
 from psycopg2.extensions import register_adapter
 from psycopg2.extras import Json
 
-
-# Se define funciones:
-
-def build_conn_string(config_path, config_section):
-    """
-    Construye la cadena de conexión a la base de datos
-    a partir de un archivo de configuración.
-    """
-
-    # Para leer el archivo de configuración
-    parser = ConfigParser()
-    parser.read(config_path)
-
-    # Parámetros de conexión a Redshift
-    config = parser[config_section]
-    host = config['host']
-    port = config['port']
-    dbname = config['dbname']
-    username = config['username']
-    pwd = config['pwd']
-
-    # Se construye la cadena de conexión
-    conn_string = f'redshift+psycopg2://{username}:{pwd}@{host}:{port}/{dbname}?sslmode=require'
-
-    return conn_string
+from configparser import ConfigParser
 
 # ----------------------------
 
-
-
-
-# ----------------------------
-
-
+# Se accede a las credenciales del archivo config.ini:
 
 config = ConfigParser()
-
-# base_dir = ("C:\Users\Elisa\Desktop\CoderHouse\Data engineering")
-
-# os.chdir(base_dir)
-
 config_dir = "venv/config/config.ini"
-config.read(config_dir)  # el contenido del archivo queda en ese config
+config.read(config_dir)
 
-# Chequeamos que la sección y la variable declarada se lean correctamente:
+# Se chequea que la sección y la variable declarada se lean correctamente:
 # print(config.sections())
 key = config["API_KEY_NEWSDATAIO"]["key"]
+tema = "ucrania"
 
-# En este caso particular la api nos da el link armado,
-# de lo contrario armar url base + endpoint + parámetros:
-url = str("https://newsdata.io/api/1/news?apikey=" + key + "&q=ucrania")
+# En este caso particular la api nos explicita el link completo,
+# de lo contrario se arma con la url base + endpoint + parámetro:
+url = str("https://newsdata.io/api/1/news?apikey=" + key + f"&q={tema}")
 # print(url)
 
 # Obtenemos datos haciendo un GET usando el método get de la librería
@@ -79,57 +45,64 @@ results = resp.json()["results"]
 df = pd.DataFrame(results)
 # print(df.head(5))
 
-# print(df["title"],["creator"])
-
 # ----------------------------
 
 # Se establece la conexión a Redshift
 config_dir = "venv/config/config.ini"
-conn_string = build_conn_string(config_dir, "redshift")
+conn_string = ut.build_conn_string(config_dir, "redshift")
 conn, engine = ut.connect_to_db(conn_string)
 
-schema = "elisasuaezmoreira_coderhouse"
+# ----------------------------
 
-# Se define script una tabla
-# todo crear variable para nombre de tabla
+# Se define script de la tabla
+
+schema = "elisasuaezmoreira_coderhouse"
+table_name = "news"
 create_table_query = f"""
-CREATE TABLE IF NOT EXISTS {schema}.news(
+CREATE TABLE IF NOT EXISTS {schema}.{table_name}(
     article_id VARCHAR(50) PRIMARY KEY distkey,
-    title VARCHAR(100),
-    creator VARCHAR(50),
-    link VARCHAR(100),
     pubDate DATE,
-    language VARCHAR(50),
-    category VARCHAR(50),
+    title VARCHAR(500),
+    creator SUPER,
+    category SUPER,
     country SUPER,
-    description VARCHAR(500)
+    language VARCHAR(100),
+    link VARCHAR(1000),
+    description VARCHAR(65535)
 )
 SORTKEY (pubDate);
 """
 
-# Se ejecuta
+# Se ejecuta script
 conn.execute(create_table_query)
-#df_tabla = df[["article_id"]].copy()
-df_tabla = df[["article_id", "country"]].copy()
-#print(df["country"].head(1))
 
-#df_tabla = df[["article_id"]].copy()
+# Se crea un DataFrame con las columnas requeridas para la tabla
+df_tabla = df[["article_id", "pubDate", "title", "creator", "category", "country", "language",
+               "link", "description"]].copy()
+print(df_tabla.head(10))
 
-# print(df_tabla.head(8))
+df_tabla.iloc[2]["article_id"] = "eb7617fcfb5a42d1bbae9cd4635c0113"
+df_tabla.iloc[2]["title"] = "LA CONCHA DE TU MADRE"
+# Se utiliza el PostgreSQL database adapter de Psycopg
 
 register_adapter(list, Json)
 
+# sY se especifican los dtypes requeridos
 dict_types={
-    'article_id': sa.types.INTEGER(),
-    'country': sar.dialect.SUPER()
+    'article_id': sa.types.VARCHAR(),
+    'pubDate': sa.types.DATE(),
+    'title': sa.types.VARCHAR(),
+    'creator': sar.dialect.SUPER(),
+    'category': sar.dialect.SUPER(),
+    'country': sar.dialect.SUPER(),
+    'language': sa.types.VARCHAR(),
+    'link': sa.types.VARCHAR(),
+    'description': sa.types.VARCHAR()
 }
 
+# Se escribe la data en la tabla de Redshift
 
-
-# Write data into the table in PostgreSQL database
-#Todo parameter for table name
-#df_tabla.to_sql(name='news', con=conn, schema=schema, if_exists='append', index=False)
-ut.load_data(df_tabla, "news", conn, schema,dict_types)
+ut.load_data(df_tabla, schema, table_name, conn, dict_types)
 
 
 
