@@ -4,7 +4,7 @@ from configparser import ConfigParser
 
 
 def load_data(dataframe, schema, table_name, connection, dictionary_types):
-    dataframe.to_sql(schema=schema, name=table_name, con=connection, if_exists='append', method='multi', index=False,
+    dataframe.to_sql(schema=schema, name=f"stage_{table_name}", con=connection, if_exists='append', method='multi', index=False,
                      dtype=dictionary_types)
 
 
@@ -39,3 +39,16 @@ def connect_to_db(conn_string):
     engine = sa.create_engine(conn_string)
     conn = engine.connect()
     return conn, engine
+
+
+def create_table(schema, table_name, script_name, conn):
+    file = open(script_name, mode="r")
+    query = file.read().format(schema=schema, table_name=table_name)
+    file.close()
+    conn.execute(query)
+
+
+def clean_duplicates(script_name, table_name, conn):
+    file = open(script_name, "r")
+    clean_query = file.read().format(table_name=table_name)
+    conn.execute(clean_query)
