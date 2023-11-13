@@ -1,5 +1,5 @@
 # 
-## Deliverable #1:
+## Deliverable:
 
 This project is about to create a script that extracts JSON data from a public API, 
 which is going to be stored in a table created in Redshift for the subsequent data load.
@@ -10,5 +10,6 @@ The table must be created in Redshift. The chosen distribution style was KEY dis
 so  this way, matching values from the common columns are physically stored together).
 
 And the chosen SORT KEY was pubDate (article's published date), because the ETLs objective is to get daily news on the topic of the war in Ukraine.
+To avoid duplicated data, the method MERGE is used.
 
 The used source is https://newsdata.io/
