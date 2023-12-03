@@ -1,11 +1,32 @@
 import pandas as pd
 import sqlalchemy as sa
+import requests
 from configparser import ConfigParser
 
 
+def request_data(url, key, topic):
+    # En este caso particular la api nos explicita el link completo,
+    # de lo contrario se arma con la url base + endpoint + parámetro:
+    uri = str(url + key + f"&q={topic}")
+
+    # Obtenemos datos haciendo un GET usando el método get de la librería
+    resp = requests.get(uri)
+
+    # Tenemos una lista de diccionario
+    results = resp.json()["results"]
+
+    # Entonces, podemos crear un DataFrame
+    return pd.DataFrame(results)
+
+
 def load_data(dataframe, schema, table_name, connection, dictionary_types):
-    dataframe.to_sql(schema=schema, name=f"stage_{table_name}", con=connection, if_exists='append', method='multi', index=False,
+    dataframe.to_sql(schema=schema, name=f"stage_{table_name}", con=connection, if_exists='append', method='multi',
+                     index=False,
                      dtype=dictionary_types)
+
+def filter_data(df_request):
+    return df_request[["article_id", "pubDate", "title", "creator", "category", "country", "language",
+                   "link", "description"]].copy()
 
 
 def build_conn_string(config_path, config_section):
