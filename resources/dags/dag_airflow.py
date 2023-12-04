@@ -1,5 +1,6 @@
 import utils as ut
 import functions_tasks as ft
+import pendulum
 
 from datetime import timedelta,datetime
 from airflow import DAG
@@ -29,6 +30,7 @@ ingestion_dag = DAG(
     dag_id='ingestion_data',
     default_args=default_args,
     description='Ingesta de datos de API NewsDataIO',
+    start_date=pendulum.datetime(2023, 12, 3, tz="UTC"),
     schedule_interval=timedelta(days=1),  # corre de manera diaria porque la API se actualiza de manera diaria
     catchup=False
 )
