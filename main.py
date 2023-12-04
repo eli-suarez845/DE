@@ -2,15 +2,13 @@
 
 # Se importan librerías:
 
-
 import sqlalchemy as sa
 import pandas as pd
-import utils as ut
-
 import sqlalchemy_redshift as sar
+
+from resourses.dags import utils as ut
 from psycopg2.extensions import register_adapter
 from psycopg2.extras import Json
-
 from configparser import ConfigParser
 
 # ----------------------------
