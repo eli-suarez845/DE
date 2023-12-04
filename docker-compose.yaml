@@ -57,9 +57,9 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: 10
   volumes:
-    - ./resourses/dags:/opt/airflow/dags
-    - ./resourses/logs:/opt/airflow/logs
-    - ./resourses/plugins:/opt/airflow/plugins
+    - ./resources/dags:/opt/airflow/dags
+    - ./resources/logs:/opt/airflow/logs
+    - ./resources/plugins:/opt/airflow/plugins
     - ./venv/config:/opt/airflow/config
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
