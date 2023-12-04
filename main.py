@@ -41,7 +41,7 @@ conn, engine = ut.connect_to_db(conn_string)
 
 # Se define script de la tabla
 
-ut.create_table(schema, table_name, "creation_table_script.sql", conn)
+ut.create_table(schema, table_name, "./resources/dags/sql/creation_table_script.sql", conn)
 
 # Se crea un DataFrame con las columnas requeridas para la tabla
 df_tabla = ut.filter_data(df)
@@ -71,7 +71,7 @@ ut.load_data(df_tabla, schema, table_name, conn, dict_types)
 
 # Se eliminan duplicados
 
-ut.clean_duplicates("clean_duplicates.sql", table_name, conn)
+ut.clean_duplicates("./resources/dags/sql/clean_duplicates.sql", table_name, conn)
 
 conn.close()
 
