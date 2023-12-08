@@ -13,13 +13,13 @@ def request_data(url, key, topic):
 
     uri = str(url + key + f"&q={topic}")
 
-    # Obtenemos datos haciendo un GET usando el método get de la librería
+    # Se obtienen datos haciendo un GET usando el método get de la librería
     resp = requests.get(uri)
 
-    # Tenemos una lista de diccionario
+    # Se crea una lista de diccionario
     results = resp.json()["results"]
 
-    # Entonces, podemos crear un DataFrame
+    # Entonces, se crea un DataFrame
     return pd.DataFrame(results)
 
 
@@ -46,11 +46,11 @@ def build_conn_string(config_path, config_section):
     a partir de un archivo de configuración.
     """
 
-    # Para leer el archivo de configuración
+    # Se parsea para leer el archivo de configuración
     parser = ConfigParser()
     parser.read(config_path)
 
-    # Parámetros de conexión a Redshift
+    # Se configuran parámetros de conexión a Redshift
     config = parser[config_section]
     host = config['host']
     port = config['port']
