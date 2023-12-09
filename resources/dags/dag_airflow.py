@@ -26,11 +26,14 @@ default_args = {
     'depends_on_past': False,
     'start_date': pendulum.datetime(2023, 12, 3, tz="UTC"),
     'email': ['elisasuarezmoreira@gmail.com'],
-    'email_on_failure': True,
-    'email_on_retry': True,
+    'email_on_failure': False,
+    'email_on_retry': False,
     'retries': 5,
     'retry_delay': timedelta(minutes=5),
-    'email_to': ['elisasuarezmoreira@gmail.com']
+    'email_to': ['elisasuarezmoreira@gmail.com'],
+    'on_failure_callback': ft.send_failure_status_email,
+    'on_success_callback': ft.send_success_status_email,
+    'on_retry_callback': ft.send_retry_mail
 }
 
 ingestion_dag = DAG(
@@ -67,13 +70,5 @@ clean_duplicates = PythonOperator(
     dag=ingestion_dag,
 )
 
-table_creation.on_success_callback = ft.send_status_email
-table_creation.on_failure_callback = ft.send_failure_status_email
-
-load_data.on_success_callback = ft.send_status_email
-load_data.on_failure_callback = ft.send_failure_status_email
-
-clean_duplicates.on_success_callback = ft.send_status_email
-clean_duplicates.on_failure_callback = ft.send_failure_status_email
 
 table_creation >> load_data >> clean_duplicates
