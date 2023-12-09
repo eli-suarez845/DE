@@ -20,10 +20,20 @@ key = config["API_KEY_NEWSDATAIO"]["key"]
 url = "https://newsdata.io/api/1/news?apikey="
 topic = "ucrania"
 
-# Argumentos por defecto para el DAG
+# Se configuran los argumentos por defecto para el DAG
 default_args = {
     'owner': 'Elisa',
-    'start_date': days_ago(5)
+    'depends_on_past': False,
+    'start_date': pendulum.datetime(2023, 12, 3, tz="UTC"),
+    'email': ['elisasuarezmoreira@gmail.com'],
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 5,
+    'retry_delay': timedelta(minutes=5),
+    'email_to': ['elisasuarezmoreira@gmail.com'],
+    'on_failure_callback': ft.send_failure_status_email,
+    'on_success_callback': ft.send_success_status_email,
+    'on_retry_callback': ft.send_retry_mail
 }
 
 ingestion_dag = DAG(

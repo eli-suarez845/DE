@@ -21,5 +21,8 @@ A 'run.cmd' file is included and could be executed in order to run the docker co
 Docker. This will expose an Airflow Web Server in the 8080 port in localhost. The default credentials are 
 airflow/airflow.
 
+In order to run the mail alerts, please create an .env file with your SMTP_KEY variable and your e-mail variable: SENDER_EMAIL.
 
+In the next link, you can see how to create the token for your gmail account to set it up the SMTP_Client:
+https://support.google.com/accounts/answer/185833?hl=en .
 
